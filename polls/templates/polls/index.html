@@ -1,9 +1,15 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<script src="/static/js/json2/json2.js" type="text/javascript" ></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-<script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js"></script>
-<script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js"></script>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Language" content="en-us" />
+  <title>Testing out Backbone</title>
+  <link href="/static/css/normalize.css" rel="stylesheet" type="text/css" media="screen" />
+  <script src="/static/js/json2/json2.js" type="text/javascript" ></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+  <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js" type="text/javascript"></script>
+  <script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -17,9 +23,10 @@
     <p>No polls are available.</p>
 {% endif %}
 
-<div id="div1" style="margin:20;padding:20;background-color:red;border:1px solid black"></div>
-<div id="div2" style="margin:20;padding:20;background-color:lightblue;border:1px solid black"></div>
-<div id="div3" style="margin:20;padding:20;background-color:lightgreen;border:1px solid black">Hello I am Div 3</div>
+<div id="div1" style="width:400px;margin:20px;padding:20px;background-color:red;border:1px solid black;cursor:pointer"></div>
+<div id="div2" style="width:400px;margin:20px;padding:20px;background-color:lightblue;border:1px solid black;cursor:pointer"></div>
+<div id="div3" style="width:400px;margin:20px;padding:20px;background-color:lightgreen;border:1px solid black;cursor:pointer"></div>
+<div id="div4" style="width:400px;margin:20px;padding:20px;background-color:pink;border:1px solid black;cursor:pointer"></div>
 
 {% load render_partial %}
 
@@ -32,34 +39,73 @@
 window.AppView = Backbone.View.extend({
   el: $("body"),
   events: {
-    "click #div1":  "showstuff",
+    "click #div1":  "getstuff",
   },
-  doit: function(result) {
+  getstuff: function () {
+    $.ajax({
+      url:"http://localhost:8100/polls/json",
+      success: this.gotstuff
+    });
+    alert("Sending");
+  },
+  gotstuff: function(result) {
     alert("Doing it");
     $('#div2').html(result);
   },
-  showstuff: function () {
-    $.ajax({
-      url:"http://localhost:8100/polls/json",
-      success: this.doit
-    });
-    console.log(this);
-    alert("Sending");
-  },
 });
 
+var Foo = Backbone.Model.extend();
+var FooView = Backbone.View.extend({})
+var foo = new Foo();
+var fooView = new FooView({  
+  el: $("#div4")
+});
+var collection = new Backbone.Collection([
+  {name: "Tim", age: 5},
+  {name: "Ida", age: 26},
+  {name: "Rob", age: 55}
+]);
+console.log(collection);
+var stooges = new Backbone.Collection([
+  new Backbone.Model({name: "Curly"}),
+  new Backbone.Model({name: "Larry"}),
+  new Backbone.Model({name: "Moe"})
+]);
+console.log(stooges);
+/*
+Backbone.sync = function(method, model) {
+  alert(method + ": " + JSON.stringify(model));
+  model.id = 1;
+};
+var book = new Backbone.Model({
+  title: "The Rough Riders",
+  author: "Theodore Roosevelt"
+});
+book.save();
+book.save({author: "Teddy"});
+*/
 var Poll = Backbone.Model.extend();
 var Polls = Backbone.Collection.extend({
-    url: 'json',
+    url: '/polls/json',
     model: Poll
 });
 var PollsView = Backbone.View.extend({});
 
 var polls = new Polls();
-new PollsView({el: $("#div3"), collection: polls});
-polls.fetch();
-console.log(polls);
-alert(polls);
+new PollsView({
+  el: $("#div3"), 
+  collection: stooges,
+  render: function() {
+    $(this.el).html(this.collection);
+//    $(this.el).html(this.template(this.model.toJSON()));
+    return this;
+  }
+});
+setInterval(function() {
+  polls.fetch();
+  console.log(polls);
+}, 10000);
+//$("#div3").html(polls);
 
 /*
 var Poll = Backbone.Model.extend({urlRoot : '/polls/json'});
@@ -68,13 +114,15 @@ alert(polls.url());
 */
 var appview = new AppView;
 
+/*
 var object = {};
 _.extend(object, Backbone.Events);
-object.bind("alert", function(msg) {
+object.bind("alert", function(msg,othermsg) {
   alert("Triggered " + msg);
+  alert("Triggered " + othermsg);
 });
-object.trigger("alert", "an event");
-
+object.trigger("alert", "an event","just reminding you...");
+*/
 })(jQuery);
 
 </script>

@@ -58,8 +58,13 @@ def vote(request, poll_id):
         return HttpResponseRedirect(reverse('polls.views.results', args=(p.id,)))
 
 def json(request):
-  from django.core import serializers
+  #from django.core import serializers
+  from django.utils import simplejson
   #json_serializer = serializers.get_serializer("json")()
   #json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
-  polls = serializers.serialize("json", Poll.objects.all())
-  return render_to_response('polls/json.html',{'json':polls},context_instance=RequestContext(request))
+  polls = {}
+  for poll in Poll.objects.all():
+      polls[poll.id] = poll.question
+  pollsjson = simplejson.dumps(polls)
+  #pollsjson = serializers.serialize("json", polls)
+  return render_to_response('polls/json.html',{'json':pollsjson },context_instance=RequestContext(request))
