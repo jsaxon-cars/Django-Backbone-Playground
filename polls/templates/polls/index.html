@@ -7,18 +7,22 @@
   <title>Testing out Backbone</title>
   <link href="/static/css/normalize.css" rel="stylesheet" type="text/css" media="screen" />
   <script src="/static/js/json2/json2.js" type="text/javascript" ></script>
+  <script src="/static/js/jquery-1.6.2.js" type="text/javascript"></script>
+  <script src="/static/js/underscore.js" type="text/javascript"></script>
+  <script src="/static/js/backbone.js" type="text/javascript"></script>
+  {% comment %}
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js" type="text/javascript"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js" type="text/javascript"></script>
+  {% endcomment %}
 </head>
 <body>
 
 {% if latest_poll_list %}
-  <ul>
+  <br />
   {% for poll in latest_poll_list %}
-    <li><a href="/polls/{{ poll.id }}/">{{ poll.question }}</a></li>
+    <p><a href="/polls/{{ poll.id }}/">{{ poll.question }}</a></p>
   {% endfor %}
-  </ul>
 {% else %}
     <p>No polls are available.</p>
 {% endif %}
@@ -27,12 +31,6 @@
 <div id="div2" style="width:400px;margin:20px;padding:20px;background-color:lightblue;border:1px solid black;cursor:pointer"></div>
 <div id="div3" style="width:400px;margin:20px;padding:20px;background-color:lightgreen;border:1px solid black;cursor:pointer"></div>
 <div id="div4" style="width:400px;margin:20px;padding:20px;background-color:pink;border:1px solid black;cursor:pointer"></div>
-
-{% load render_partial %}
-
-<div>
-{% render_partial "hello.html" %}
-</div>
 
 <script>
 (function ($) {
@@ -55,11 +53,28 @@ window.AppView = Backbone.View.extend({
 });
 
 var Foo = Backbone.Model.extend();
-var FooView = Backbone.View.extend({})
+var FooView = Backbone.View.extend({
+  collection: {one:'one',two:'two'}
+});
 var foo = new Foo();
 var fooView = new FooView({  
-  el: $("#div4")
+  el: $("#div4"),
+  model: Foo,
+  render: function() {
+    alert("in render?");
+    console.log(this.collection);
+    $(this.el).html(this.collection);
+//    $(this.el).html(this.template(this.model.toJSON()));
+    return this;
+  }
+
 });
+console.log("FOOVIEW");
+console.log(fooView);
+fooView.render();
+alert(fooView.el);
+
+/*
 var collection = new Backbone.Collection([
   {name: "Tim", age: 5},
   {name: "Ida", age: 26},
@@ -72,6 +87,7 @@ var stooges = new Backbone.Collection([
   new Backbone.Model({name: "Moe"})
 ]);
 console.log(stooges);
+*/
 /*
 Backbone.sync = function(method, model) {
   alert(method + ": " + JSON.stringify(model));
@@ -86,32 +102,35 @@ book.save({author: "Teddy"});
 */
 var Poll = Backbone.Model.extend();
 var Polls = Backbone.Collection.extend({
-    url: '/polls/json',
+    url: 'json',
     model: Poll
 });
 var PollsView = Backbone.View.extend({});
 
 var polls = new Polls();
+var foo = polls.fetch();
+console.log(polls);
 new PollsView({
   el: $("#div3"), 
-  collection: stooges,
+  collection: polls,
   render: function() {
     $(this.el).html(this.collection);
 //    $(this.el).html(this.template(this.model.toJSON()));
     return this;
   }
 });
+/*
 setInterval(function() {
   polls.fetch();
   console.log(polls);
 }, 10000);
 //$("#div3").html(polls);
-
-/*
-var Poll = Backbone.Model.extend({urlRoot : '/polls/json'});
-var polls = new Poll();//{id: "1083-lem-solaris"});
-alert(polls.url());
 */
+
+var Poll = Backbone.Model.extend({urlRoot : '/polls/json'});
+var polls2 = new Poll();//{id: "1083-lem-solaris"});
+alert(polls2.fetch());
+
 var appview = new AppView;
 
 /*
@@ -126,6 +145,10 @@ object.trigger("alert", "an event","just reminding you...");
 })(jQuery);
 
 </script>
+
+{% load render_partial %}
+<div>{% render_partial "hello.html" %}</div>
+
 
 </body>
 </html>

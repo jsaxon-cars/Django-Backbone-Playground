@@ -5,7 +5,16 @@ from django.shortcuts import render_to_response
 from django.conf.urls.defaults import patterns, include, url
 from django.http import Http404
 from django.template import RequestContext
-import json
+#from django.core import serializers
+from django.utils import simplejson
+
+class JsonResponse(HttpResponse):
+    def __init__(self, data):
+        content = simplejson.dumps(data,
+                                   indent=2,
+                                   ensure_ascii=False)
+        super(JsonResponse, self).__init__(content=content,
+                                           mimetype='application/json; charset=utf8')
 
 def custom_404(request):
     return render_to_response('polls/404.html', {})
@@ -14,7 +23,6 @@ def index(request):
     latest_poll_list = Poll.objects.all().order_by('-pub_date')[:5]
     context = {'latest_poll_list': latest_poll_list}
     return render_to_response('polls/index.html',context)
-
 
 def detail(request, poll_id):
     try:
@@ -58,13 +66,14 @@ def vote(request, poll_id):
         return HttpResponseRedirect(reverse('polls.views.results', args=(p.id,)))
 
 def json(request):
-  #from django.core import serializers
-  from django.utils import simplejson
-  #json_serializer = serializers.get_serializer("json")()
-  #json_serializer.serialize(queryset, ensure_ascii=False, stream=response)
-  polls = {}
+  polls = []
   for poll in Poll.objects.all():
-      polls[poll.id] = poll.question
-  pollsjson = simplejson.dumps(polls)
-  #pollsjson = serializers.serialize("json", polls)
-  return render_to_response('polls/json.html',{'json':pollsjson },context_instance=RequestContext(request))
+    polls.append({
+      'id':poll.id,
+      'question':poll.question
+    })
+  return render_to_response(
+                            'polls/json.html',
+                            {'json':simplejson.dumps(polls)},
+                            context_instance=RequestContext(request)
+                            )
