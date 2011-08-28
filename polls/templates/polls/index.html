@@ -1,0 +1,83 @@
+<html>
+<head>
+<script src="/static/js/json2/json2.js" type="text/javascript" ></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js"></script>
+<script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js"></script>
+</head>
+<body>
+
+{% if latest_poll_list %}
+  <ul>
+  {% for poll in latest_poll_list %}
+    <li><a href="/polls/{{ poll.id }}/">{{ poll.question }}</a></li>
+  {% endfor %}
+  </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+
+<div id="div1" style="margin:20;padding:20;background-color:red;border:1px solid black"></div>
+<div id="div2" style="margin:20;padding:20;background-color:lightblue;border:1px solid black"></div>
+<div id="div3" style="margin:20;padding:20;background-color:lightgreen;border:1px solid black">Hello I am Div 3</div>
+
+{% load render_partial %}
+
+<div>
+{% render_partial "hello.html" %}
+</div>
+
+<script>
+(function ($) {
+window.AppView = Backbone.View.extend({
+  el: $("body"),
+  events: {
+    "click #div1":  "showstuff",
+  },
+  doit: function(result) {
+    alert("Doing it");
+    $('#div2').html(result);
+  },
+  showstuff: function () {
+    $.ajax({
+      url:"http://localhost:8100/polls/json",
+      success: this.doit
+    });
+    console.log(this);
+    alert("Sending");
+  },
+});
+
+var Poll = Backbone.Model.extend();
+var Polls = Backbone.Collection.extend({
+    url: 'json',
+    model: Poll
+});
+var PollsView = Backbone.View.extend({});
+
+var polls = new Polls();
+new PollsView({el: $("#div3"), collection: polls});
+polls.fetch();
+console.log(polls);
+alert(polls);
+
+/*
+var Poll = Backbone.Model.extend({urlRoot : '/polls/json'});
+var polls = new Poll();//{id: "1083-lem-solaris"});
+alert(polls.url());
+*/
+var appview = new AppView;
+
+var object = {};
+_.extend(object, Backbone.Events);
+object.bind("alert", function(msg) {
+  alert("Triggered " + msg);
+});
+object.trigger("alert", "an event");
+
+})(jQuery);
+
+</script>
+
+</body>
+</html>
