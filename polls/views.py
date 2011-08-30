@@ -21,7 +21,7 @@ def custom_404(request):
 
 def index(request):
     latest_poll_list = Poll.objects.all().order_by('-pub_date')[:5]
-    context = {'latest_poll_list': latest_poll_list}
+    context = {'latest_poll_list': latest_poll_list, 'polls_json': json_polls()}
     return render_to_response('polls/index.html',context)
 
 def detail(request, poll_id):
@@ -65,15 +65,18 @@ def vote(request, poll_id):
         # user hits the Back button.
         return HttpResponseRedirect(reverse('polls.views.results', args=(p.id,)))
 
-def json(request):
+def json_polls():
   polls = []
   for poll in Poll.objects.all():
     polls.append({
       'id':poll.id,
       'question':poll.question
     })
+  return simplejson.dumps(polls)
+  
+def json(request):
   return render_to_response(
                             'polls/json.html',
-                            {'json':simplejson.dumps(polls)},
+                            {'json':json_polls()},
                             context_instance=RequestContext(request)
                             )
