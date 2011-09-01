@@ -27,7 +27,7 @@ $(function() {
     },
     
     url : function() { 
-      qs = typeof(this.first() == "object")?("?last_time=" + this.first().get("timestamp")):'';
+      qs = ''; //typeof(this.first() == "object")?("?last_time=" + this.first().get("timestamp")):'';
       return TWEET_API + qs;
     },
 
