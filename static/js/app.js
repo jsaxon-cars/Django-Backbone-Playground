@@ -22,10 +22,16 @@ $(function() {
   });
 
   window.Tweets = Backbone.Collection.extend({
-    url : TWEET_API,
+    initialize: function() {
+            _.bindAll(this, 'url');
+    },
+    
+    url : function() { 
+      qs = typeof(this.first() == "object")?("?last_time=" + this.first().get("timestamp")):'';
+      return TWEET_API + qs;
+    },
 
     parse : function(data) {
-      console.log(data.objects);
       return data.objects;
     },
     comparator : function(tweet) {
