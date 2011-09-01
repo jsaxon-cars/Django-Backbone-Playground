@@ -1,6 +1,7 @@
 
 # Can ignore specific files
 .DS_Store
+.pydevproject
 nbproject
 
 # Use wildcards as well
