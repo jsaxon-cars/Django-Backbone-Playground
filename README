@@ -1,1 +1,13 @@
-This is a project which has been created to experiment with Django and now Backbone.  Eventualy we'll try to do something similar with Pyramid.  Or maybe right now too...
+This is a project which has been created to experiment with Django and now Backbone.  
+
+To see how this works, open up two browsers to:
+
+http://localhost:8000/tweets
+
+If you add a tweet to one window, it'll show up in the other window.  
+
+This project is based directly upon:
+
+http://joshbohde.com/blog/backbonejs-and-django
+
+I've also created a Pyramid version.
